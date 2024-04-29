@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("inkScapeDB").collection("users");
+    const ArtsCollection = client.db("inkScapeDB").collection("arts");
 
     // user related apis
 
@@ -41,6 +42,14 @@ async function run() {
       const result = await usersCollection.insertOne(users);
       res.send(result);
       console.log(result);
+    });
+
+    // art related api
+    app.post("/arts", async (req, res) => {
+      const newArt = req.body;
+      console.log(newArt);
+      const result = await ArtsCollection.insertOne(newArt);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
