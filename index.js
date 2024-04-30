@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -26,7 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("inkScapeDB").collection("users");
-    const ArtsCollection = client.db("inkScapeDB").collection("arts");
+    const artsCollection = client.db("inkScapeDB").collection("arts");
 
     // user related apis
 
@@ -45,10 +45,33 @@ async function run() {
     });
 
     // art related api
+
+    app.get("/arts", async (req, res) => {
+      const cursor = artsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/arts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await artsCollection.findOne(query);
+      console.log(id, query, result);
+      res.send(result);
+    });
+
+    app.get("/myArt/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await artsCollection
+        .find({ userEmail: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+
     app.post("/arts", async (req, res) => {
       const newArt = req.body;
       console.log(newArt);
-      const result = await ArtsCollection.insertOne(newArt);
+      const result = await artsCollection.insertOne(newArt);
       res.send(result);
     });
 
