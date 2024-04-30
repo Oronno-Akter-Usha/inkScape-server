@@ -61,10 +61,8 @@ async function run() {
     });
 
     app.get("/myArt/:email", async (req, res) => {
-      console.log(req.params.email);
-      const result = await artsCollection
-        .find({ userEmail: req.params.email })
-        .toArray();
+      const email = req.params.email;
+      const result = await artsCollection.find({ userEmail: email }).toArray();
       res.send(result);
     });
 
@@ -72,6 +70,29 @@ async function run() {
       const newArt = req.body;
       console.log(newArt);
       const result = await artsCollection.insertOne(newArt);
+      res.send(result);
+    });
+
+    app.put("/arts/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedArt = req.body;
+      const art = {
+        $set: {
+          itemName: updatedArt.itemName,
+          subcategory: updatedArt.subcategory,
+          price: updatedArt.price,
+          rating: updatedArt.rating,
+          customization: updatedArt.customization,
+          stockStatus: updatedArt.stockStatus,
+          photo: updatedArt.photo,
+          processingTime: updatedArt.processingTime,
+          shortDescription: updatedArt.shortDescription,
+        },
+      };
+
+      const result = await artsCollection.updateOne(filter, art, options);
       res.send(result);
     });
 
